@@ -10,11 +10,11 @@ app.get('/', (req, res) => {
 })
 
 const pool = new Pool({
-  user: 'yocity',           // Votre utilisateur PostgreSQL
-  host: 'localhost',        // Serveur local
-  database: 'taches',       // Nom de votre base
-  password: 'yocity',       // Mot de passe de l'utilisateur
-  port: 5432,               // Port PostgreSQL standard
+  user: 'yocity',           
+  host: 'localhost',        
+  database: 'taches',       
+  password: 'yocity',      
+  port: 5432,              
   max: 20,                  // Nombre max de connexions
   idleTimeoutMillis: 30000, // Timeout des connexions inactives
   connectionTimeoutMillis: 2000, // Timeout de connexion
@@ -41,7 +41,6 @@ pool.query('SELECT COUNT(*) FROM tasks', (err, result) => {
 app.use(cors());
 app.use(express.json());
 
-// CREATE - Créer une tâche
 app.post('/api/tasks', async (req, res) => {
   try {
     const { title, description, due_date, priority } = req.body;
@@ -57,7 +56,6 @@ app.post('/api/tasks', async (req, res) => {
   }
 });
 
-// READ - Lister toutes les tâches
 app.get('/api/tasks', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM tasks ORDER BY id DESC');
@@ -67,7 +65,6 @@ app.get('/api/tasks', async (req, res) => {
   }
 });
 
-// READ - Une tâche par ID
 app.get('/api/tasks/:id', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id]);
@@ -78,7 +75,6 @@ app.get('/api/tasks/:id', async (req, res) => {
   }
 });
 
-// UPDATE - Modifier une tâche
 app.put('/api/tasks/:id', async (req, res) => {
   try {
     const { title, description, due_date, priority, completed } = req.body;
@@ -96,7 +92,6 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 });
 
-// TOGGLE - Basculer le statut terminé
 app.patch('/api/tasks/:id/toggle', async (req, res) => {
   try {
     const result = await pool.query(
@@ -110,7 +105,6 @@ app.patch('/api/tasks/:id/toggle', async (req, res) => {
   }
 });
 
-// DELETE - Supprimer une tâche
 app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const result = await pool.query('DELETE FROM tasks WHERE id = $1 RETURNING *', [req.params.id]);
@@ -121,7 +115,6 @@ app.delete('/api/tasks/:id', async (req, res) => {
   }
 });
 
-// SEARCH - Rechercher des tâches
 app.get('/api/search', async (req, res) => {
   try {
     const { q } = req.query;
@@ -137,7 +130,6 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-// STATS - Statistiques simples
 app.get('/api/stats', async (req, res) => {
   try {
     const total = await pool.query('SELECT COUNT(*) FROM tasks');
