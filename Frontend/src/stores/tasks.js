@@ -14,31 +14,26 @@ export const useTasksStore = defineStore('tasks', () => {
   const stats = ref({
     total: 0,
     completed: 0,
-    pending: 0
+    pending: 0,
   })
-
 
   // Getters calculés
   const filteredTasks = computed(() => {
     if (!searchQuery.value) return tasks.value
     const query = searchQuery.value.toLowerCase()
-    return tasks.value.filter(task => 
-      task.title.toLowerCase().includes(query) || 
-      task.description?.toLowerCase().includes(query)
+    return tasks.value.filter(
+      (task) =>
+        task.title.toLowerCase().includes(query) || task.description?.toLowerCase().includes(query),
     )
   })
 
-  const completedTasks = computed(() => 
-    tasks.value.filter(task => task.completed)
-  )
+  const completedTasks = computed(() => tasks.value.filter((task) => task.completed))
 
-  const pendingTasks = computed(() => 
-    tasks.value.filter(task => !task.completed)
-  )
+  const pendingTasks = computed(() => tasks.value.filter((task) => !task.completed))
 
   const tasksByPriority = computed(() => {
     const priorities = { haute: [], moyenne: [], basse: [] }
-    tasks.value.forEach(task => {
+    tasks.value.forEach((task) => {
       if (priorities[task.priority]) {
         priorities[task.priority].push(task)
       }
@@ -66,11 +61,11 @@ export const useTasksStore = defineStore('tasks', () => {
   const fetchTasks = async () => {
     setLoading(true)
     clearError()
-    
+
     try {
       const response = await fetch(apiUrl('/tasks'))
       if (!response.ok) throw new Error('Erreur lors du chargement des tâches')
-      
+
       const data = await response.json()
       tasks.value = data
       await fetchStats() // Mettre à jour les stats en même temps
@@ -85,26 +80,26 @@ export const useTasksStore = defineStore('tasks', () => {
   const createTask = async (taskData) => {
     setLoading(true)
     clearError()
-    
+
     try {
       const response = await fetch(apiUrl('/tasks'), {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
-      
+
       if (!response.ok) throw new Error('Erreur lors de la création de la tâche')
-      
+
       const newTask = await response.json()
       // Ajouter la nouvelle tâche au début de la liste (ORDER BY id DESC)
       tasks.value.unshift(newTask)
-      
+
       // Mettre à jour les stats localement pour éviter un fetch
       stats.value.total++
       stats.value.pending++
-      
+
       return newTask
     } catch (err) {
       setError(err.message)
@@ -118,26 +113,26 @@ export const useTasksStore = defineStore('tasks', () => {
   const updateTask = async (id, taskData) => {
     setLoading(true)
     clearError()
-    
+
     try {
       const response = await fetch(apiUrl(`/tasks/${id}`), {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(taskData)
+        body: JSON.stringify(taskData),
       })
-      
+
       if (!response.ok) throw new Error('Erreur lors de la mise à jour de la tâche')
-      
+
       const updatedTask = await response.json()
-      
+
       // Mise à jour optimisée dans le tableau local
-      const index = tasks.value.findIndex(task => task.id === id)
+      const index = tasks.value.findIndex((task) => task.id === id)
       if (index !== -1) {
         const oldTask = tasks.value[index]
         tasks.value[index] = updatedTask
-        
+
         // Mettre à jour les stats si le statut completed a changé
         if (oldTask.completed !== updatedTask.completed) {
           if (updatedTask.completed) {
@@ -149,7 +144,7 @@ export const useTasksStore = defineStore('tasks', () => {
           }
         }
       }
-      
+
       return updatedTask
     } catch (err) {
       setError(err.message)
@@ -162,17 +157,17 @@ export const useTasksStore = defineStore('tasks', () => {
   // Basculer le statut d'une tâche
   const toggleTask = async (id) => {
     clearError()
-    
+
     // Optimisation optimiste : mise à jour immédiate de l'UI
-    const taskIndex = tasks.value.findIndex(task => task.id === id)
+    const taskIndex = tasks.value.findIndex((task) => task.id === id)
     if (taskIndex === -1) return
-    
+
     const originalTask = { ...tasks.value[taskIndex] }
     const wasCompleted = originalTask.completed
-    
+
     // Mise à jour optimiste
     tasks.value[taskIndex].completed = !wasCompleted
-    
+
     // Mise à jour optimiste des stats
     if (wasCompleted) {
       stats.value.completed--
@@ -181,17 +176,16 @@ export const useTasksStore = defineStore('tasks', () => {
       stats.value.completed++
       stats.value.pending--
     }
-    
+
     try {
       const response = await fetch(apiUrl(`/tasks/${id}/toggle`), {
-        method: 'PATCH'
+        method: 'PATCH',
       })
-      
+
       if (!response.ok) throw new Error('Erreur lors du basculement de la tâche')
-      
+
       const updatedTask = await response.json()
       tasks.value[taskIndex] = updatedTask
-      
     } catch (err) {
       // Rollback en cas d'erreur
       tasks.value[taskIndex] = originalTask
@@ -211,13 +205,13 @@ export const useTasksStore = defineStore('tasks', () => {
   const deleteTask = async (id) => {
     setLoading(true)
     clearError()
-    
+
     // Sauvegarder la tâche pour un rollback potentiel
-    const taskIndex = tasks.value.findIndex(task => task.id === id)
+    const taskIndex = tasks.value.findIndex((task) => task.id === id)
     if (taskIndex === -1) return
-    
+
     const taskToDelete = tasks.value[taskIndex]
-    
+
     // Suppression optimiste
     tasks.value.splice(taskIndex, 1)
     stats.value.total--
@@ -226,14 +220,13 @@ export const useTasksStore = defineStore('tasks', () => {
     } else {
       stats.value.pending--
     }
-    
+
     try {
       const response = await fetch(apiUrl(`/tasks/${id}`), {
-        method: 'DELETE'
+        method: 'DELETE',
       })
-      
+
       if (!response.ok) throw new Error('Erreur lors de la suppression de la tâche')
-      
     } catch (err) {
       // Rollback en cas d'erreur
       tasks.value.splice(taskIndex, 0, taskToDelete)
@@ -256,14 +249,14 @@ export const useTasksStore = defineStore('tasks', () => {
       await fetchTasks()
       return
     }
-    
+
     setLoading(true)
     clearError()
-    
+
     try {
       const response = await fetch(apiUrl(`/search?q=${encodeURIComponent(query)}`))
       if (!response.ok) throw new Error('Erreur lors de la recherche')
-      
+
       const results = await response.json()
       tasks.value = results
     } catch (err) {
@@ -273,17 +266,15 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  // Mise à jour de la requête de recherche locale
   const setSearchQuery = (query) => {
     searchQuery.value = query
   }
 
-  // Récupérer les statistiques
   const fetchStats = async () => {
     try {
       const response = await fetch(apiUrl('/stats'))
       if (!response.ok) throw new Error('Erreur lors du chargement des statistiques')
-      
+
       const data = await response.json()
       stats.value = data
     } catch (err) {
@@ -291,12 +282,10 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  // Obtenir une tâche par ID (avec cache local)
   const getTaskById = (id) => {
-    return tasks.value.find(task => task.id === parseInt(id))
+    return tasks.value.find((task) => task.id === parseInt(id))
   }
 
-  // Réinitialiser le store
   const resetStore = () => {
     tasks.value = []
     loading.value = false
@@ -305,7 +294,6 @@ export const useTasksStore = defineStore('tasks', () => {
     stats.value = { total: 0, completed: 0, pending: 0 }
   }
 
-  // Actions de tri
   const sortTasks = (sortBy) => {
     switch (sortBy) {
       case 'date_asc':
@@ -315,7 +303,7 @@ export const useTasksStore = defineStore('tasks', () => {
         tasks.value.sort((a, b) => new Date(b.due_date || 0) - new Date(a.due_date || 0))
         break
       case 'priority':
-        const priorityOrder = { 'haute': 3, 'moyenne': 2, 'basse': 1 }
+        const priorityOrder = { haute: 3, moyenne: 2, basse: 1 }
         tasks.value.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
         break
       case 'title':
@@ -325,34 +313,26 @@ export const useTasksStore = defineStore('tasks', () => {
         tasks.value.sort((a, b) => a.completed - b.completed)
         break
       default:
-        tasks.value.sort((a, b) => b.id - a.id) // Par défaut, tri par ID décroissant
+        tasks.value.sort((a, b) => b.id - a.id)
     }
   }
 
-  // Marquer toutes les tâches comme terminées
   const markAllCompleted = async () => {
-    const pendingTaskIds = tasks.value
-      .filter(task => !task.completed)
-      .map(task => task.id)
-    
+    const pendingTaskIds = tasks.value.filter((task) => !task.completed).map((task) => task.id)
+
     if (pendingTaskIds.length === 0) return
-    
-    // Mise à jour optimiste
-    tasks.value.forEach(task => {
+
+    tasks.value.forEach((task) => {
       if (!task.completed) task.completed = true
     })
     stats.value.completed = stats.value.total
     stats.value.pending = 0
-    
+
     try {
-      // Mettre à jour toutes les tâches en parallèle
       await Promise.all(
-        pendingTaskIds.map(id => 
-          fetch(apiUrl(`/tasks/${id}/toggle`), { method: 'PATCH' })
-        )
+        pendingTaskIds.map((id) => fetch(apiUrl(`/tasks/${id}/toggle`), { method: 'PATCH' })),
       )
     } catch (err) {
-      // En cas d'erreur, recharger les données
       await fetchTasks()
       setError('Erreur lors de la mise à jour groupée')
       throw err
@@ -366,13 +346,13 @@ export const useTasksStore = defineStore('tasks', () => {
     error: readonly(error),
     searchQuery: readonly(searchQuery),
     stats: readonly(stats),
-    
+
     // Getters
     filteredTasks,
     completedTasks,
     pendingTasks,
     tasksByPriority,
-    
+
     // Actions
     fetchTasks,
     createTask,
@@ -386,6 +366,6 @@ export const useTasksStore = defineStore('tasks', () => {
     resetStore,
     sortTasks,
     markAllCompleted,
-    clearError
+    clearError,
   }
 })
