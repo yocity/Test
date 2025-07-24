@@ -41,7 +41,6 @@ export const useTasksStore = defineStore('tasks', () => {
     return priorities
   })
 
-  // Actions
   const setLoading = (state) => {
     loading.value = state
   }
@@ -57,7 +56,6 @@ export const useTasksStore = defineStore('tasks', () => {
     error.value = null
   }
 
-  // Récupérer toutes les tâches
   const fetchTasks = async () => {
     setLoading(true)
     clearError()
@@ -68,7 +66,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
       const data = await response.json()
       tasks.value = data
-      await fetchStats() // Mettre à jour les stats en même temps
+      await fetchStats()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -76,7 +74,6 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  // Créer une nouvelle tâche
   const createTask = async (taskData) => {
     setLoading(true)
     clearError()
@@ -93,10 +90,9 @@ export const useTasksStore = defineStore('tasks', () => {
       if (!response.ok) throw new Error('Erreur lors de la création de la tâche')
 
       const newTask = await response.json()
-      // Ajouter la nouvelle tâche au début de la liste (ORDER BY id DESC)
+      
       tasks.value.unshift(newTask)
 
-      // Mettre à jour les stats localement pour éviter un fetch
       stats.value.total++
       stats.value.pending++
 
@@ -127,13 +123,11 @@ export const useTasksStore = defineStore('tasks', () => {
 
       const updatedTask = await response.json()
 
-      // Mise à jour optimisée dans le tableau local
       const index = tasks.value.findIndex((task) => task.id === id)
       if (index !== -1) {
         const oldTask = tasks.value[index]
         tasks.value[index] = updatedTask
 
-        // Mettre à jour les stats si le statut completed a changé
         if (oldTask.completed !== updatedTask.completed) {
           if (updatedTask.completed) {
             stats.value.completed++
@@ -158,17 +152,14 @@ export const useTasksStore = defineStore('tasks', () => {
   const toggleTask = async (id) => {
     clearError()
 
-    // Optimisation optimiste : mise à jour immédiate de l'UI
     const taskIndex = tasks.value.findIndex((task) => task.id === id)
     if (taskIndex === -1) return
 
     const originalTask = { ...tasks.value[taskIndex] }
     const wasCompleted = originalTask.completed
 
-    // Mise à jour optimiste
     tasks.value[taskIndex].completed = !wasCompleted
 
-    // Mise à jour optimiste des stats
     if (wasCompleted) {
       stats.value.completed--
       stats.value.pending++
@@ -187,7 +178,7 @@ export const useTasksStore = defineStore('tasks', () => {
       const updatedTask = await response.json()
       tasks.value[taskIndex] = updatedTask
     } catch (err) {
-      // Rollback en cas d'erreur
+      
       tasks.value[taskIndex] = originalTask
       if (wasCompleted) {
         stats.value.completed++
@@ -206,13 +197,11 @@ export const useTasksStore = defineStore('tasks', () => {
     setLoading(true)
     clearError()
 
-    // Sauvegarder la tâche pour un rollback potentiel
     const taskIndex = tasks.value.findIndex((task) => task.id === id)
     if (taskIndex === -1) return
 
     const taskToDelete = tasks.value[taskIndex]
 
-    // Suppression optimiste
     tasks.value.splice(taskIndex, 1)
     stats.value.total--
     if (taskToDelete.completed) {
@@ -228,7 +217,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
       if (!response.ok) throw new Error('Erreur lors de la suppression de la tâche')
     } catch (err) {
-      // Rollback en cas d'erreur
+      
       tasks.value.splice(taskIndex, 0, taskToDelete)
       stats.value.total++
       if (taskToDelete.completed) {
