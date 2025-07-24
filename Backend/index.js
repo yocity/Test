@@ -36,7 +36,7 @@ pool.query('SELECT COUNT(*) FROM tasks', (err, result) => {
   } else {
     console.log('Nombre de tâches:', result.rows[0].count);
   }
-});
+}); 
 
 app.use(cors());
 app.use(express.json());

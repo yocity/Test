@@ -318,7 +318,7 @@ const filteredTasks = computed(() => {
   const pending = filtered.filter((task) => !task.completed)
   const completed = filtered.filter((task) => task.completed)
   return [...pending, ...completed]
-})
+}) 
 
 const {
   fetchTasks,

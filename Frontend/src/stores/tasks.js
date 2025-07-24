@@ -252,7 +252,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
     setLoading(true)
     clearError()
-
+ 
     try {
       const response = await fetch(apiUrl(`/search?q=${encodeURIComponent(query)}`))
       if (!response.ok) throw new Error('Erreur lors de la recherche')

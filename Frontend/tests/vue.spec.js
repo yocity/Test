@@ -13,7 +13,7 @@ test.describe('Gestionnaire de Tâches', () => {
     await expect(page.locator('.text-gray-500:has-text("Terminées")')).toBeVisible();
     await expect(page.locator('.text-gray-500:has-text("En cours")')).toBeVisible();
   });
-
+ 
   test('Créer une nouvelle tâche', async ({ page }) => {
     await page.getByRole('button', { name: 'Nouvelle tâche' }).click();
 
