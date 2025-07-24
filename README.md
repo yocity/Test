@@ -27,13 +27,13 @@ npm install
 npm run dev
 ```
 
-### Effectuer des tests unitaires avec[Le plus vide](https://vitest.dev/)
+### Effectuer des tests unitaires
 
 ```sh
 npm run test:unit
 ```
 
-### Effectuez des tests de bout en bout avec[Dramaturge](https://playwright.dev)
+### Effectuez des tests de bout en bout
 
 ```sh
 npx playwright install
