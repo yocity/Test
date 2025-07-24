@@ -2,62 +2,62 @@
 
 Exercice technique pour l’entretien - Fiters
 
-Ce template vous aide à démarrer un projet avec Vue 3 (frontend) et Express.js (backend).
+Ce projet a pour stack :
+- Vue 3 (frontend)  
+- Express.js (backend)
+- PostgreSQL (database)
+- TailwingCSS (CSS)
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (et désactivez Vetur).
+commande utile pour le projet 
 
-## Configuration personnalisée
+## Configuration du projet (FrontEnd)
 
-Voir la [documentation de Vite](https://vite.dev/config/) pour le frontend et la [documentation Express.js](https://expressjs.com/fr/starter/installing.html) pour le backend.
-
-## Project Setup
+```sh
+cd Frontend 
+```
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+### Compiler et recharger pour le développement
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+### Effectuer des tests unitaires avec[Le plus vide](https://vitest.dev/)
 
 ```sh
 npm run test:unit
 ```
 
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
+### Effectuez des tests de bout en bout avec[Dramaturge](https://playwright.dev)
 
 ```sh
-# Install browsers for the first run
 npx playwright install
 
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
+npx playwright test
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Formater le code
 
 ```sh
-npm run lint
+npm run format
 ```
-Installez les dépendances pour le frontend et le backend :
+## Configuration du projet (BackEnd)
+
+```sh
+cd Backend 
+```
+
+```sh
+npm install
+```
+
+### Compiler et recharger pour le développement
+
+```sh
+node index.js
+```
