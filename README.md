@@ -27,17 +27,9 @@ npm install
 npm run dev
 ```
 
-### Effectuer des tests unitaires
+### Effectuez des tests
 
 ```sh
-npm run test:unit
-```
-
-### Effectuez des tests de bout en bout
-
-```sh
-npx playwright install
-
 npx playwright test
 ```
 
